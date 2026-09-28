@@ -1,41 +1,62 @@
+```python
 from flask import Flask, render_template, request, jsonify
 import requests
+import os
 
 app = Flask(__name__)
 
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
 
 def ai_cevap(mesaj):
-    response = requests.post(
-        "http://127.0.0.1:11434/api/generate",
-        json={
-            "model": "qwen2.5:3b",
-            "prompt": f"""Sen BenimAI adlı hızlı ve doğal konuşan bir yapay zekâ asistanısın.
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": GEMINI_API_KEY
+    }
+
+    data = {
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": f"""Sen BenimAI adlı hızlı, doğal ve yardımcı bir yapay zekâ asistanısın.
 
 Kurallar:
 - Her zaman Türkçe konuş.
 - Doğal ve düzgün cümleler kur.
-- Devrik cümlelerden kaçın.
-- Kısa ve anlaşılır cevaplar ver.
 - Kullanıcının sorusuna doğrudan cevap ver.
-- Gereksiz tekrar ve uzun açıklamalar yapma.
-- Kendini Alibaba Cloud veya başka bir şirketin asistanı olarak tanıtma.
+- Gereksiz yere uzun cevaplar verme.
+- Kendini Google Gemini veya başka bir şirketin asistanı olarak tanıtma.
+- Kendini BenimAI olarak tanıt.
 - Emin olmadığın bilgileri kesinmiş gibi söyleme.
-- Mümkün olduğunca hızlı ve net cevap ver.
 
 Kullanıcı: {mesaj}
 
-BenimAI:""",
-            "stream": False,
-            "options": {
-                "num_predict": 80,
-                "temperature": 0.7
+BenimAI:"""
+                    }
+                ]
             }
-        },
+        ],
+        "generationConfig": {
+            "temperature": 0.7,
+            "maxOutputTokens": 500
+        }
+    }
+
+    response = requests.post(
+        url,
+        headers=headers,
+        json=data,
         timeout=120
     )
 
     response.raise_for_status()
-    return response.json()["response"]
+
+    sonuc = response.json()
+
+    return sonuc["candidates"][0]["content"]["parts"][0]["text"]
 
 
 @app.route("/")
@@ -54,9 +75,11 @@ def chat():
     try:
         cevap = ai_cevap(mesaj)
         return jsonify({"response": cevap})
+
     except Exception as e:
         return jsonify({"error": str(e)})
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
+```
