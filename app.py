@@ -1,4 +1,3 @@
-```python
 from flask import Flask, render_template, request, jsonify
 import requests
 import os
@@ -21,7 +20,7 @@ def ai_cevap(mesaj):
             {
                 "parts": [
                     {
-                        "text": f"""Sen BenimAI adlı hızlı, doğal ve yardımcı bir yapay zekâ asistanısın.
+                        "text": f"""Sen BenimAI adlı hızlı ve doğal konuşan bir yapay zekâ asistanısın.
 
 Kurallar:
 - Her zaman Türkçe konuş.
@@ -75,11 +74,9 @@ def chat():
     try:
         cevap = ai_cevap(mesaj)
         return jsonify({"response": cevap})
-
     except Exception as e:
         return jsonify({"error": str(e)})
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
-```
+    app.run(host="0.0.0.0", port=5000)
