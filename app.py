@@ -133,9 +133,9 @@ def chat():
             "response": cevap
         })
 
-    except requests.exceptions.RequestException as e:
-        print("GEMINI API HATASI:", repr(e))
+   except requests.exceptions.RequestException as e:
+    print("GEMINI API HATASI:", repr(e))
 
-        return jsonify({
-            "error": "Yapay zekâ servisine bağlanırken bir hat
-```
+    return jsonify({
+        "error": f"Gemini API hatası: {str(e)}"
+    }), 500
