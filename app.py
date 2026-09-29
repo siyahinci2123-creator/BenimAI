@@ -70,5 +70,84 @@ data = {
     "contents": contents,
     "generationConfig": {
         "temperature": 0.6,
-        "topP": 0.
+        "topP": 0.9,
+        "maxOutputTokens": 800
+    }
+}
+
+response = requests.post(
+    url,
+    headers=headers,
+    json=data,
+    timeout=120
+)
+
+print("GEMINI STATUS:", response.status_code)
+print("GEMINI RESPONSE:", response.text)
+
+response.raise_for_status()
+
+sonuc = response.json()
+
+return sonuc["candidates"][0]["content"]["parts"][0]["text"]
 ```
+
+@app.route("/")
+def ana_sayfa():
+return render_template("index.html")
+
+@app.route("/chat", methods=["POST"])
+def chat():
+try:
+data = request.get_json(silent=True)
+
+```
+    if not data:
+        return jsonify({
+            "error": "İstek verisi alınamadı."
+        }), 400
+
+    messages = data.get("messages")
+
+    if not messages:
+        eski_mesaj = data.get("message", "").strip()
+
+        if eski_mesaj:
+            messages = [
+                {
+                    "role": "user",
+                    "content": eski_mesaj
+                }
+            ]
+
+    if not messages:
+        return jsonify({
+            "error": "Mesaj bulunamadı."
+        }), 400
+
+    cevap = ai_cevap(messages)
+
+    return jsonify({
+        "response": cevap
+    })
+
+except requests.exceptions.RequestException as e:
+    print("GEMINI API HATASI:", repr(e))
+
+    return jsonify({
+        "error": f"Gemini API hatası: {str(e)}"
+    }), 500
+
+except Exception as e:
+    print("CHAT HATASI:", repr(e))
+
+    return jsonify({
+        "error": f"Sunucu hatası: {str(e)}"
+    }), 500
+```
+
+if **name** == "**main**":
+app.run(
+host="0.0.0.0",
+port=5000
+)
