@@ -1,699 +1,817 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BenimAI</title>
-
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --bg: #070914;
-            --sidebar: #0b0e1a;
-            --panel: #101525;
-            --panel2: #151a2b;
-            --border: rgba(255,255,255,.08);
-            --text: #f5f7ff;
-            --muted: #8b93a7;
-
-            --primary: #8b5cf6;
-            --secondary: #06b6d4;
-            --glow: rgba(139,92,246,.25);
-        }
-
-        body {
-            font-family: Inter, Arial, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .app {
-            height: 100vh;
-            display: flex;
-            background:
-                radial-gradient(circle at 70% 10%, var(--glow), transparent 30%),
-                radial-gradient(circle at 90% 90%, rgba(6,182,212,.10), transparent 30%);
-        }
-
-        /* SIDEBAR */
-
-        .sidebar {
-            width: 270px;
-            height: 100vh;
-            background: rgba(11,14,26,.92);
-            border-right: 1px solid var(--border);
-            padding: 18px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-        .brand-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            box-shadow: 0 0 25px var(--glow);
-        }
-
-        .brand-name {
-            font-size: 21px;
-            font-weight: 800;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .new-chat {
-            border: 1px solid rgba(255,255,255,.1);
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 13px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: .2s;
-        }
-
-        .new-chat:hover {
-            transform: translateY(-1px);
-            filter: brightness(1.12);
-        }
-
-        .section-title {
-            margin-top: 28px;
-            margin-bottom: 10px;
-            color: #626b80;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .history {
-            color: var(--muted);
-            font-size: 13px;
-            padding: 11px;
-            border-radius: 9px;
-            cursor: pointer;
-        }
-
-        .history:hover {
-            background: rgba(255,255,255,.05);
-            color: white;
-        }
-
-        .sidebar-bottom {
-            margin-top: auto;
-        }
-
-        .settings-button {
-            width: 100%;
-            border: 1px solid var(--border);
-            background: rgba(255,255,255,.04);
-            color: var(--muted);
-            padding: 12px;
-            border-radius: 11px;
-            cursor: pointer;
-            text-align: left;
-            font-size: 13px;
-            margin-bottom: 10px;
-            transition: .2s;
-        }
-
-        .settings-button:hover {
-            background: rgba(255,255,255,.08);
-            color: white;
-        }
-
-        .model-card {
-            padding: 13px;
-            border-radius: 13px;
-            background: rgba(255,255,255,.04);
-            border: 1px solid var(--border);
-        }
-
-        .model-title {
-            font-size: 12px;
-            color: #737c91;
-        }
-
-        .model-name {
-            margin-top: 5px;
-            font-size: 13px;
-            font-weight: bold;
-        }
-
-        .online {
-            margin-top: 7px;
-            color: #4ade80;
-            font-size: 11px;
-        }
-
-        /* MAIN */
-
-        .main {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .topbar {
-            height: 65px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 25px;
-            border-bottom: 1px solid var(--border);
-            background: rgba(7,9,20,.65);
-            backdrop-filter: blur(15px);
-        }
-
-        .top-title {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .top-status {
-            color: #4ade80;
-            font-size: 12px;
-        }
-
-        /* CHAT */
-
-        .messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 35px 20px;
-            scroll-behavior: smooth;
-        }
-
-        .welcome {
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .welcome-icon {
-            width: 75px;
-            height: 75px;
-            border-radius: 23px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 38px;
-            margin-bottom: 20px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            box-shadow:
-                0 0 45px var(--glow),
-                inset 0 0 20px rgba(255,255,255,.15);
-        }
-
-        .welcome h1 {
-            font-size: 38px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .welcome p {
-            margin-top: 9px;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .message-row {
-            max-width: 850px;
-            margin: 0 auto 20px;
-            display: flex;
-            gap: 12px;
-        }
-
-        .avatar {
-            flex: 0 0 35px;
-            width: 35px;
-            height: 35px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 15px;
-            font-weight: bold;
-        }
-
-        .ai-avatar {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-        }
-
-        .user-avatar {
-            background: #252b3d;
-        }
-
-        .message-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .message-name {
-            font-size: 12px;
-            color: #7f899d;
-            margin-bottom: 5px;
-        }
-
-        .message {
-            line-height: 1.65;
-            white-space: pre-wrap;
-            font-size: 14px;
-            color: #e8ebf4;
-        }
-
-        .user-message {
-            background: var(--glow);
-            border: 1px solid rgba(139,92,246,.15);
-            padding: 12px 15px;
-            border-radius: 13px;
-        }
-
-        /* INPUT */
-
-        .input-area {
-            padding: 10px 25px 25px;
-        }
-
-        .input-box {
-            max-width: 850px;
-            margin: auto;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 7px 7px 7px 15px;
-            border: 1px solid rgba(255,255,255,.1);
-            background: rgba(16,21,37,.9);
-            border-radius: 17px;
-            box-shadow: 0 10px 35px rgba(0,0,0,.2);
-        }
-
-        #messageInput {
-            flex: 1;
-            min-width: 0;
-            border: none;
-            outline: none;
-            background: transparent;
-            color: white;
-            font-size: 14px;
-            padding: 12px 0;
-        }
-
-        #messageInput::placeholder {
-            color: #687187;
-        }
-
-        #sendButton {
-            width: 43px;
-            height: 43px;
-            border: none;
-            border-radius: 12px;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            transition: .2s;
-        }
-
-        #sendButton:hover {
-            transform: scale(1.05);
-        }
-
-        .input-info {
-            text-align: center;
-            margin-top: 9px;
-            color: #555e72;
-            font-size: 10px;
-        }
-
-        /* AYARLAR */
-
-        .settings-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,.55);
-            backdrop-filter: blur(5px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .settings-overlay.active {
-            display: flex;
-        }
-
-        .settings-panel {
-            width: 380px;
-            max-width: calc(100% - 30px);
-            background: #101525;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 22px;
-            box-shadow: 0 25px 80px rgba(0,0,0,.5);
-            animation: settingsOpen .2s ease;
-        }
-
-        @keyframes settingsOpen {
-            from {
-                opacity: 0;
-                transform: scale(.95) translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .settings-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .settings-header h2 {
-            font-size: 19px;
-        }
-
-        .close-settings {
-            width: 34px;
-            height: 34px;
-            border: none;
-            border-radius: 9px;
-            background: rgba(255,255,255,.06);
-            color: #aaa;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        .close-settings:hover {
-            background: rgba(255,255,255,.1);
-            color: white;
-        }
-
-        .settings-section {
-            margin-bottom: 25px;
-        }
-
-        .settings-label {
-            color: #8b93a7;
-            font-size: 12px;
-            margin-bottom: 12px;
-        }
-
-        .color-options {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-        }
-
-        .color-option {
-            height: 52px;
-            border-radius: 12px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: .2s;
-            position: relative;
-        }
-
-        .color-option:hover {
-            transform: translateY(-2px);
-        }
-
-        .color-option.selected {
-            border-color: white;
-            box-shadow: 0 0 18px rgba(255,255,255,.2);
-        }
-
-        .color-option::after {
-            content: "✓";
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            opacity: 0;
-        }
-
-        .color-option.selected::after {
-            opacity: 1;
-        }
-
-        .purple {
-            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
-        }
-
-        .blue {
-            background: linear-gradient(135deg, #2563eb, #06b6d4);
-        }
-
-        .green {
-            background: linear-gradient(135deg, #16a34a, #14b8a6);
-        }
-
-        .red {
-            background: linear-gradient(135deg, #dc2626, #f97316);
-        }
-
-        .orange {
-            background: linear-gradient(135deg, #ea580c, #eab308);
-        }
-
-        /* MOBİL */
-
-        @media(max-width: 700px) {
-
-            .sidebar {
-                display: none;
-            }
-
-            .topbar {
-                padding: 0 16px;
-            }
-
-            .messages {
-                padding: 20px 12px;
-            }
-
-            .input-area {
-                padding: 8px 10px 15px;
-            }
-
-            .welcome h1 {
-                font-size: 30px;
-            }
-
-            .message-row {
-                gap: 8px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>BenimAI</title>
+
+<style>
+
+:root {
+    --primary: #8b5cf6;
+    --secondary: #06b6d4;
+    --bg: #070711;
+    --panel: rgba(18, 18, 32, 0.72);
+    --panel2: rgba(25, 25, 45, 0.75);
+    --text: #f5f5f7;
+    --muted: #9292a7;
+    --border: rgba(255,255,255,.08);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Inter, Arial, sans-serif;
+    background:
+        radial-gradient(circle at 15% 10%, rgba(139,92,246,.18), transparent 30%),
+        radial-gradient(circle at 85% 85%, rgba(6,182,212,.12), transparent 30%),
+        var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 270px;
+
+    background: rgba(10,10,20,.82);
+    backdrop-filter: blur(25px);
+
+    border-right: 1px solid var(--border);
+
+    padding: 22px;
+
+    display: flex;
+    flex-direction: column;
+
+    z-index: 10;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    font-size: 21px;
+    font-weight: 800;
+
+    margin-bottom: 28px;
+}
+
+.logo-icon {
+    width: 36px;
+    height: 36px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 11px;
+
+    background: linear-gradient(
+        135deg,
+        var(--primary),
+        var(--secondary)
+    );
+
+    box-shadow:
+        0 0 25px rgba(139,92,246,.35);
+}
+
+.logo span {
+    background: linear-gradient(
+        90deg,
+        #fff,
+        #bca7ff
+    );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.new-chat {
+    border: 1px solid rgba(255,255,255,.08);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(139,92,246,.18),
+            rgba(6,182,212,.08)
+        );
+
+    color: white;
+
+    border-radius: 13px;
+
+    padding: 13px;
+
+    cursor: pointer;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: .2s;
+}
+
+.new-chat:hover {
+    transform: translateY(-1px);
+
+    border-color: rgba(139,92,246,.45);
+
+    box-shadow:
+        0 8px 30px rgba(139,92,246,.12);
+}
+
+.section-title {
+    color: #66667b;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    margin-top: 28px;
+    margin-bottom: 12px;
+
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.empty {
+    color: #59596d;
+    font-size: 13px;
+    padding: 8px;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+}
+
+.settings {
+    width: 100%;
+
+    background: transparent;
+
+    color: #aaaabc;
+
+    border: 1px solid transparent;
+
+    border-radius: 11px;
+
+    padding: 11px;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.settings:hover {
+    background: rgba(255,255,255,.05);
+    color: white;
+}
+
+.model-card {
+    margin-top: 12px;
+
+    padding: 14px;
+
+    border-radius: 14px;
+
+    background: rgba(255,255,255,.035);
+
+    border: 1px solid var(--border);
+}
+
+.model-label {
+    color: #6f6f82;
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
+.model-name {
+    margin-top: 6px;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.online {
+    margin-top: 7px;
+
+    color: #67e8a5;
+
+    font-size: 11px;
+}
+
+/* ================= MAIN ================= */
+
+.main {
+    margin-left: 270px;
+
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+}
+
+/* HEADER */
+
+.header {
+    height: 70px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 32px;
+
+    border-bottom: 1px solid var(--border);
+
+    background: rgba(7,7,17,.55);
+
+    backdrop-filter: blur(18px);
+}
+
+.header-title {
+    font-weight: 700;
+}
+
+.header-status {
+    margin-left: 14px;
+
+    font-size: 12px;
+
+    color: #67e8a5;
+}
+
+/* ================= CHAT ================= */
+
+.chat {
+    flex: 1;
+
+    overflow-y: auto;
+
+    padding: 35px 10% 150px;
+}
+
+.welcome {
+    min-height: 65vh;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-direction: column;
+
+    text-align: center;
+}
+
+.welcome-icon {
+    width: 72px;
+    height: 72px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 22px;
+
+    font-size: 32px;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--secondary)
+        );
+
+    box-shadow:
+        0 0 60px rgba(139,92,246,.28);
+}
+
+.welcome h1 {
+    margin: 20px 0 8px;
+
+    font-size: 34px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #fff,
+            #bca7ff,
+            #67e8f9
+        );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.welcome p {
+    color: var(--muted);
+
+    font-size: 14px;
+}
+
+/* MESSAGE */
+
+.message {
+    display: flex;
+
+    gap: 13px;
+
+    margin: 22px 0;
+
+    animation: messageIn .25s ease;
+}
+
+@keyframes messageIn {
+    from {
+        opacity: 0;
+        transform: translateY(7px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.avatar {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    border-radius: 11px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    background: rgba(255,255,255,.08);
+}
+
+.ai .avatar {
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--secondary)
+        );
+}
+
+.content {
+    max-width: 800px;
+
+    line-height: 1.65;
+
+    font-size: 15px;
+}
+
+.name {
+    font-size: 12px;
+
+    color: #89899e;
+
+    margin-bottom: 5px;
+}
+
+.ai .content {
+    color: #eeeeF5;
+}
+
+.user .content {
+    background: rgba(255,255,255,.055);
+
+    border: 1px solid var(--border);
+
+    padding: 11px 14px;
+
+    border-radius: 13px;
+}
+
+/* ================= INPUT ================= */
+
+.input-area {
+    position: fixed;
+
+    left: 270px;
+    right: 0;
+    bottom: 0;
+
+    padding: 18px 10% 22px;
+
+    background:
+        linear-gradient(
+            transparent,
+            rgba(7,7,17,.95) 35%
+        );
+}
+
+.input-box {
+    max-width: 900px;
+
+    margin: auto;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 8px;
+
+    background: rgba(22,22,38,.85);
+
+    backdrop-filter: blur(20px);
+
+    border: 1px solid rgba(255,255,255,.1);
+
+    border-radius: 17px;
+
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.35);
+}
+
+textarea {
+    flex: 1;
+
+    resize: none;
+
+    border: 0;
+    outline: 0;
+
+    background: transparent;
+
+    color: white;
+
+    font-size: 14px;
+
+    padding: 11px;
+
+    max-height: 120px;
+}
+
+textarea::placeholder {
+    color: #66667a;
+}
+
+.send {
+    width: 42px;
+    height: 42px;
+
+    border: 0;
+
+    border-radius: 12px;
+
+    color: white;
+
+    cursor: pointer;
+
+    background:
+        linear-gradient(
+            135deg,
+            var(--primary),
+            var(--secondary)
+        );
+
+    transition: .2s;
+}
+
+.send:hover {
+    transform: scale(1.05);
+
+    box-shadow:
+        0 0 25px rgba(139,92,246,.35);
+}
+
+.info {
+    text-align: center;
+
+    color: #555568;
+
+    font-size: 10px;
+
+    margin-top: 8px;
+}
+
+/* ================= SETTINGS ================= */
+
+.modal {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0,0,0,.65);
+
+    backdrop-filter: blur(8px);
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    z-index: 100;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.settings-box {
+    width: 420px;
+    max-width: 90%;
+
+    padding: 25px;
+
+    background: #11111e;
+
+    border: 1px solid var(--border);
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 30px 100px rgba(0,0,0,.5);
+}
+
+.settings-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 25px;
+}
+
+.close {
+    background: transparent;
+
+    border: 0;
+
+    color: #888;
+
+    font-size: 20px;
+
+    cursor: pointer;
+}
+
+.theme-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2,1fr);
+
+    gap: 10px;
+}
+
+.theme {
+    padding: 15px;
+
+    border-radius: 13px;
+
+    border: 1px solid var(--border);
+
+    background: rgba(255,255,255,.035);
+
+    color: white;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.theme:hover {
+    transform: translateY(-2px);
+
+    border-color: var(--primary);
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width: 800px) {
+
+    .sidebar {
+        display: none;
+    }
+
+    .main {
+        margin-left: 0;
+    }
+
+    .header {
+        padding: 0 18px;
+    }
+
+    .chat {
+        padding: 25px 18px 140px;
+    }
+
+    .input-area {
+        left: 0;
+
+        padding:
+            12px
+            15px
+            18px;
+    }
+
+    .welcome h1 {
+        font-size: 27px;
+    }
+
+    .content {
+        font-size: 14px;
+    }
+}
+
+</style>
 </head>
 
 <body>
 
-<div class="app">
+<!-- SIDEBAR -->
 
-    <aside class="sidebar">
+<aside class="sidebar">
 
-        <div class="brand">
-            <div class="brand-icon">✦</div>
-            <div class="brand-name">BenimAI</div>
-        </div>
+    <div class="logo">
+        <div class="logo-icon">✦</div>
+        <span>BenimAI</span>
+    </div>
 
-        <button class="new-chat" onclick="newChat()">
-            ＋ Yeni Sohbet
+    <button class="new-chat" onclick="newChat()">
+        ＋ Yeni Sohbet
+    </button>
+
+    <div class="section-title">
+        Sohbetler
+    </div>
+
+    <div class="empty" id="emptyChats">
+        Henüz sohbet yok
+    </div>
+
+    <div class="sidebar-bottom">
+
+        <button class="settings" onclick="openSettings()">
+            ⚙️ Ayarlar
         </button>
 
-        <div class="section-title">
-            Sohbetler
-        </div>
+        <div class="model-card">
 
-        <div class="history">
-            Henüz sohbet yok
-        </div>
-
-        <div class="sidebar-bottom">
-
-            <button class="settings-button" onclick="openSettings()">
-                ⚙️ Ayarlar
-            </button>
-
-            <div class="model-card">
-
-                <div class="model-title">
-                    MODEL
-                </div>
-
-                <div class="model-name">
-                    Gemini 2.5 Flash
-                </div>
-
-                <div class="online">
-                    ● Çevrimiçi
-                </div>
-
+            <div class="model-label">
+                MODEL
             </div>
 
-        </div>
-
-    </aside>
-
-
-    <main class="main">
-
-        <header class="topbar">
-
-            <div class="top-title">
-                Yeni Sohbet
+            <div class="model-name">
+                Gemini 3 Flash
             </div>
 
-            <div class="top-status">
+            <div class="online">
                 ● Çevrimiçi
             </div>
 
-        </header>
+        </div>
+
+    </div>
+
+</aside>
 
 
-        <section class="messages" id="messages">
+<!-- MAIN -->
 
-            <div class="welcome" id="welcome">
+<main class="main">
 
-                <div class="welcome-icon">
-                    ✦
-                </div>
+    <header class="header">
 
-                <h1>BenimAI</h1>
+        <div class="header-title">
+            Yeni Sohbet
+        </div>
 
-                <p>Bugün sana nasıl yardımcı olabilirim?</p>
+        <div class="header-status">
+            ● Çevrimiçi
+        </div>
 
+    </header>
+
+
+    <section class="chat" id="chat">
+
+        <div class="welcome" id="welcome">
+
+            <div class="welcome-icon">
+                ✦
             </div>
 
-        </section>
+            <h1>
+                BenimAI
+            </h1>
 
-
-        <div class="input-area">
-
-            <div class="input-box">
-
-                <input
-                    id="messageInput"
-                    type="text"
-                    autocomplete="off"
-                    placeholder="BenimAI'ye bir şey sor..."
-                >
-
-                <button id="sendButton">➤</button>
-
-            </div>
-
-            <div class="input-info">
-                BenimAI · Yapay zekâ asistanı
-            </div>
+            <p>
+                Fikirlerini gerçeğe dönüştürmek için buradayım.
+            </p>
 
         </div>
 
-    </main>
-
-</div>
+    </section>
 
 
-<!-- AYARLAR PENCERESİ -->
+    <div class="input-area">
 
-<div class="settings-overlay" id="settingsOverlay">
+        <div class="input-box">
 
-    <div class="settings-panel">
+            <textarea
+                id="message"
+                rows="1"
+                placeholder="BenimAI'ye bir şey sor..."
+            ></textarea>
+
+            <button
+                class="send"
+                onclick="sendMessage()"
+            >
+                ➤
+            </button>
+
+        </div>
+
+        <div class="info">
+            BenimAI · Yapay zekâ asistanı
+        </div>
+
+    </div>
+
+</main>
+
+
+<!-- SETTINGS -->
+
+<div class="modal" id="settingsModal">
+
+    <div class="settings-box">
 
         <div class="settings-header">
 
             <h2>⚙️ Ayarlar</h2>
 
-            <button class="close-settings" onclick="closeSettings()">
-                ✕
+            <button
+                class="close"
+                onclick="closeSettings()"
+            >
+                ×
             </button>
 
         </div>
 
+        <p style="color:#888;font-size:13px">
+            BenimAI'nin görünümünü kişiselleştir.
+        </p>
 
-        <div class="settings-section">
+        <div class="theme-grid">
 
-            <div class="settings-label">
-                TEMA RENGİ
-            </div>
+            <button
+                class="theme"
+                onclick="setTheme('#8b5cf6','#06b6d4')"
+            >
+                💜 Mor
+            </button>
 
-            <div class="color-options">
+            <button
+                class="theme"
+                onclick="setTheme('#3b82f6','#06b6d4')"
+            >
+                💙 Mavi
+            </button>
 
-                <button
-                    class="color-option purple"
-                    data-primary="#8b5cf6"
-                    data-secondary="#06b6d4"
-                    data-glow="rgba(139,92,246,.25)"
-                    onclick="changeColor(this)">
-                </button>
+            <button
+                class="theme"
+                onclick="setTheme('#10b981','#22d3ee')"
+            >
+                💚 Yeşil
+            </button>
 
-                <button
-                    class="color-option blue"
-                    data-primary="#2563eb"
-                    data-secondary="#06b6d4"
-                    data-glow="rgba(37,99,235,.25)"
-                    onclick="changeColor(this)">
-                </button>
+            <button
+                class="theme"
+                onclick="setTheme('#ef4444','#f97316')"
+            >
+                ❤️ Kırmızı
+            </button>
 
-                <button
-                    class="color-option green"
-                    data-primary="#16a34a"
-                    data-secondary="#14b8a6"
-                    data-glow="rgba(22,163,74,.25)"
-                    onclick="changeColor(this)">
-                </button>
-
-                <button
-                    class="color-option red"
-                    data-primary="#dc2626"
-                    data-secondary="#f97316"
-                    data-glow="rgba(220,38,38,.25)"
-                    onclick="changeColor(this)">
-                </button>
-
-                <button
-                    class="color-option orange"
-                    data-primary="#ea580c"
-                    data-secondary="#eab308"
-                    data-glow="rgba(234,88,12,.25)"
-                    onclick="changeColor(this)">
-                </button>
-
-            </div>
+            <button
+                class="theme"
+                onclick="setTheme('#f97316','#facc15')"
+            >
+                🧡 Turuncu
+            </button>
 
         </div>
 
@@ -704,115 +822,77 @@
 
 <script>
 
-const input = document.getElementById("messageInput");
-const sendButton = document.getElementById("sendButton");
-const messages = document.getElementById("messages");
+const messageInput =
+    document.getElementById("message");
+
+const chat =
+    document.getElementById("chat");
+
+const welcome =
+    document.getElementById("welcome");
 
 
-// MESAJ EKLEME
-
-function addMessage(text, type) {
-
-    const row = document.createElement("div");
-    row.className = "message-row";
-
-    const avatar = document.createElement("div");
-
-    avatar.className =
-        "avatar " +
-        (type === "ai" ? "ai-avatar" : "user-avatar");
-
-    avatar.textContent =
-        type === "ai" ? "✦" : "S";
-
-    const content = document.createElement("div");
-    content.className = "message-content";
-
-    const name = document.createElement("div");
-    name.className = "message-name";
-
-    name.textContent =
-        type === "ai" ? "BenimAI" : "Sen";
-
-    const message = document.createElement("div");
-    message.className = "message";
-
-    if (type === "user") {
-        message.classList.add("user-message");
-    }
-
-    message.textContent = text;
-
-    content.appendChild(name);
-    content.appendChild(message);
-
-    row.appendChild(avatar);
-    row.appendChild(content);
-
-    messages.appendChild(row);
-
-    messages.scrollTop = messages.scrollHeight;
-
-    return row;
-}
-
-
-// MESAJ GÖNDER
+/* ================= SEND ================= */
 
 async function sendMessage() {
 
-    const text = input.value.trim();
+    const message =
+        messageInput.value.trim();
 
-    if (!text) return;
-
-    const welcome =
-        document.getElementById("welcome");
+    if (!message) return;
 
     if (welcome) {
         welcome.remove();
     }
 
-    addMessage(text, "user");
+    addMessage(
+        "user",
+        message
+    );
 
-    input.value = "";
+    messageInput.value = "";
 
     const loading =
-        addMessage("BenimAI düşünüyor...", "ai");
-
-    sendButton.disabled = true;
+        addMessage(
+            "ai",
+            "BenimAI düşünüyor..."
+        );
 
     try {
 
-        const response = await fetch("/chat", {
+        const response =
+            await fetch("/chat", {
 
-            method: "POST",
+                method: "POST",
 
-            headers: {
-                "Content-Type": "application/json"
-            },
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
 
-            body: JSON.stringify({
-                message: text
-            })
+                body: JSON.stringify({
+                    message: message
+                })
 
-        });
+            });
 
-        const data = await response.json();
+        const data =
+            await response.json();
 
         loading.remove();
 
         if (data.response) {
 
             addMessage(
-                data.response,
-                "ai"
+                "ai",
+                data.response
             );
 
         } else {
 
             addMessage(
-                "Hata: " + data.error,
-                "ai"
+                "ai",
+                "Bir hata oluştu."
             );
 
         }
@@ -822,218 +902,231 @@ async function sendMessage() {
         loading.remove();
 
         addMessage(
-            "Sunucuya bağlanamadım.",
-            "ai"
+            "ai",
+            "Sunucuya bağlanamadım."
         );
 
     }
 
-    sendButton.disabled = false;
-
-    input.focus();
 }
 
 
-// YENİ SOHBET
+/* ================= MESSAGE ================= */
+
+function addMessage(
+    type,
+    text
+) {
+
+    const message =
+        document.createElement("div");
+
+    message.className =
+        `message ${type}`;
+
+    const avatar =
+        type === "ai"
+            ? "✦"
+            : "S";
+
+    const name =
+        type === "ai"
+            ? "BenimAI"
+            : "Sen";
+
+    message.innerHTML = `
+
+        <div class="avatar">
+            ${avatar}
+        </div>
+
+        <div class="content">
+
+            <div class="name">
+                ${name}
+            </div>
+
+            <div>
+                ${escapeHtml(text)}
+            </div>
+
+        </div>
+    `;
+
+    chat.appendChild(message);
+
+    chat.scrollTop =
+        chat.scrollHeight;
+
+    return message;
+}
+
+
+/* ================= ESCAPE ================= */
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+}
+
+
+/* ================= NEW CHAT ================= */
 
 function newChat() {
 
-    messages.innerHTML = `
+    chat.innerHTML = `
+
         <div class="welcome" id="welcome">
 
             <div class="welcome-icon">
                 ✦
             </div>
 
-            <h1>BenimAI</h1>
+            <h1>
+                BenimAI
+            </h1>
 
             <p>
-                Bugün sana nasıl yardımcı olabilirim?
+                Fikirlerini gerçeğe dönüştürmek için buradayım.
             </p>
 
         </div>
     `;
 
-    input.focus();
 }
 
 
-// AYARLAR AÇ
+/* ================= SETTINGS ================= */
 
 function openSettings() {
 
     document
-        .getElementById("settingsOverlay")
-        .classList.add("active");
+        .getElementById("settingsModal")
+        .classList
+        .add("active");
 
 }
-
-
-// AYARLAR KAPAT
 
 function closeSettings() {
 
     document
-        .getElementById("settingsOverlay")
-        .classList.remove("active");
+        .getElementById("settingsModal")
+        .classList
+        .remove("active");
 
 }
 
 
-// RENK DEĞİŞTİR
+/* ================= THEME ================= */
 
-function changeColor(button) {
+function setTheme(
+    primary,
+    secondary
+) {
 
-    const primary =
-        button.dataset.primary;
+    document.documentElement
+        .style
+        .setProperty(
+            "--primary",
+            primary
+        );
 
-    const secondary =
-        button.dataset.secondary;
-
-    const glow =
-        button.dataset.glow;
-
-    document.documentElement.style.setProperty(
-        "--primary",
-        primary
-    );
-
-    document.documentElement.style.setProperty(
-        "--secondary",
-        secondary
-    );
-
-    document.documentElement.style.setProperty(
-        "--glow",
-        glow
-    );
-
-
-    document
-        .querySelectorAll(".color-option")
-        .forEach(option => {
-
-            option.classList.remove("selected");
-
-        });
-
-
-    button.classList.add("selected");
-
+    document.documentElement
+        .style
+        .setProperty(
+            "--secondary",
+            secondary
+        );
 
     localStorage.setItem(
-        "benimaiPrimary",
+        "primary",
         primary
     );
 
     localStorage.setItem(
-        "benimaiSecondary",
+        "secondary",
         secondary
     );
 
-    localStorage.setItem(
-        "benimaiGlow",
-        glow
-    );
+    closeSettings();
 
 }
 
 
-// KAYITLI RENGİ YÜKLE
+/* ================= LOAD THEME ================= */
 
-function loadColor() {
+const savedPrimary =
+    localStorage.getItem("primary");
 
-    const primary =
-        localStorage.getItem("benimaiPrimary");
+const savedSecondary =
+    localStorage.getItem("secondary");
 
-    const secondary =
-        localStorage.getItem("benimaiSecondary");
+if (
+    savedPrimary &&
+    savedSecondary
+) {
 
-    const glow =
-        localStorage.getItem("benimaiGlow");
+    document.documentElement
+        .style
+        .setProperty(
+            "--primary",
+            savedPrimary
+        );
 
-
-    if (!primary || !secondary || !glow) {
-
-        document
-            .querySelector(".color-option.purple")
-            .classList.add("selected");
-
-        return;
-    }
-
-
-    document.documentElement.style.setProperty(
-        "--primary",
-        primary
-    );
-
-    document.documentElement.style.setProperty(
-        "--secondary",
-        secondary
-    );
-
-    document.documentElement.style.setProperty(
-        "--glow",
-        glow
-    );
-
-
-    document
-        .querySelectorAll(".color-option")
-        .forEach(option => {
-
-            if (
-                option.dataset.primary === primary
-            ) {
-
-                option.classList.add("selected");
-
-            }
-
-        });
+    document.documentElement
+        .style
+        .setProperty(
+            "--secondary",
+            savedSecondary
+        );
 
 }
 
 
-// DIŞARI TIKLAYINCA KAPAT
+/* ================= ENTER ================= */
 
-document
-    .getElementById("settingsOverlay")
-    .addEventListener("click", function(event) {
-
-        if (event.target === this) {
-            closeSettings();
-        }
-
-    });
-
-
-// ENTER
-
-input.addEventListener(
+messageInput.addEventListener(
     "keydown",
     function(event) {
 
-        if (event.key === "Enter") {
+        if (
+            event.key === "Enter" &&
+            !event.shiftKey
+        ) {
+
+            event.preventDefault();
+
             sendMessage();
+
         }
 
     }
 );
 
 
-// GÖNDER
+/* ================= CLOSE MODAL ================= */
 
-sendButton.addEventListener(
-    "click",
-    sendMessage
-);
+document
+    .getElementById("settingsModal")
+    .addEventListener(
+        "click",
+        function(event) {
 
+            if (
+                event.target === this
+            ) {
 
-// BAŞLANGIÇ
+                closeSettings();
 
-loadColor();
+            }
+
+        }
+    );
 
 </script>
 
