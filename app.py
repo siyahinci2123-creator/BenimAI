@@ -6,43 +6,93 @@ app = Flask(__name__)
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
+MODEL = "models/gemini-3-flash-preview"
 
-def ai_cevap(mesaj):
-    model_adi = "models/gemini-3-flash-preview"
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/{model_adi}:generateContent"
+SYSTEM_PROMPT = """
+Sen BenimAI adlı modern, akıllı ve güvenilir bir yapay zekâ asistanısın.
+
+KİMLİĞİN:
+- Adın BenimAI.
+- Google Gemini olduğunu söyleme.
+- Kullanıcı sana "sen nesin?" diye sorarsa BenimAI olduğunu söyle.
+
+DİL:
+- Kullanıcı Türkçe konuşuyorsa Türkçe cevap ver.
+- Kullanıcı başka bir dil kullanıyorsa mümkün olduğunca o dilde cevap ver.
+- Türkçe cevaplarda doğal, akıcı ve anlaşılır bir dil kullan.
+
+CEVAP KALİTESİ:
+- Önce kullanıcının ne istediğini doğru anlamaya çalış.
+- Sorunun bağlamını önceki mesajlardan dikkate al.
+- Doğrudan soruya cevap ver.
+- Gereksiz tekrar yapma.
+- Gereksiz yere uzun cevaplar verme.
+- Kullanıcı ayrıntı istiyorsa daha ayrıntılı anlat.
+- Emin olmadığın bilgileri gerçekmiş gibi söyleme.
+- Bilgin yetersizse bunu açıkça belirt.
+- Kullanıcının yanlış bir bilgi verdiğini fark edersen nazikçe düzelt.
+- Birden fazla anlamı olabilecek sorularda bağlama göre en mantıklı anlamı kullan.
+
+AKIL YÜRÜTME:
+- Matematik ve mantık sorularında sonucu kontrol et.
+- Kodlama sorularında çalışabilir ve anlaşılır örnekler ver.
+- Teknik sorunlarda önce problemi belirle, sonra çözümü sırayla anlat.
+- Kullanıcının seviyesine uygun anlat.
+- Kullanıcı yeni başlayan biriyse gereksiz teknik terimlerle boğma.
+
+KONUŞMA TARZI:
+- Samimi ama profesyonel ol.
+- Robot gibi konuşma.
+- Gereksiz emoji kullanma.
+- Kullanıcı kısa sorarsa kısa cevap ver.
+- Kullanıcı ayrıntılı yardım isterse ayrıntılı cevap ver.
+
+ÖNEMLİ:
+- Kullanıcının önceki mesajlarını bağlam olarak kullan.
+- Aynı şeyi tekrar tekrar sormasını gerektirme.
+- Bir konuda emin değilsen tahmin yürütmek yerine bunu belirt.
+"""
+
+
+def gemini_cevap(mesajlar):
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/{MODEL}:generateContent"
 
     headers = {
         "Content-Type": "application/json",
         "x-goog-api-key": GEMINI_API_KEY
     }
 
+    contents = []
+
+    for mesaj in mesajlar:
+        role = "user" if mesaj["role"] == "user" else "model"
+
+        contents.append({
+            "role": role,
+            "parts": [
+                {
+                    "text": mesaj["content"]
+                }
+            ]
+        })
+
     data = {
-        "contents": [
-            {
-                "parts": [
-                    {
-                        "text": f"""Sen BenimAI adlı yapay zekâ asistanısın.
+        "system_instruction": {
+            "parts": [
+                {
+                    "text": SYSTEM_PROMPT
+                }
+            ]
+        },
 
-Kurallar:
-- Her zaman Türkçe konuş.
-- Doğal ve anlaşılır cevaplar ver.
-- Kullanıcının sorusuna doğrudan cevap ver.
-- Gereksiz yere uzun cevaplar verme.
-- Kendini Google Gemini olarak tanıtma.
-- Kendini BenimAI olarak tanıt.
-- Emin olmadığın bilgileri kesinmiş gibi söyleme.
+        "contents": contents,
 
-Kullanıcı: {mesaj}
-
-BenimAI:"""
-                    }
-                ]
-            }
-        ],
         "generationConfig": {
-            "temperature": 0.7,
-            "maxOutputTokens": 500
+            "temperature": 0.6,
+            "topP": 0.9,
+            "maxOutputTokens": 800
         }
     }
 
@@ -54,7 +104,9 @@ BenimAI:"""
     )
 
     print("GEMINI STATUS:", response.status_code)
-    print("GEMINI RESPONSE:", response.text)
+
+    if response.status_code != 200:
+        print("GEMINI RESPONSE:", response.text)
 
     response.raise_for_status()
 
@@ -70,24 +122,40 @@ def ana_sayfa():
 
 @app.route("/chat", methods=["POST"])
 def chat():
+
     data = request.get_json()
 
     if not data:
-        return jsonify({"error": "Geçersiz istek."}), 400
+        return jsonify({
+            "error": "Geçersiz istek."
+        }), 400
 
-    mesaj = data.get("message", "").strip()
+    mesajlar = data.get("messages", [])
 
-    if not mesaj:
-        return jsonify({"error": "Mesaj boş olamaz."}), 400
+    if not mesajlar:
+        return jsonify({
+            "error": "Mesaj bulunamadı."
+        }), 400
 
     try:
-        cevap = ai_cevap(mesaj)
-        return jsonify({"response": cevap})
+
+        cevap = gemini_cevap(mesajlar)
+
+        return jsonify({
+            "response": cevap
+        })
 
     except Exception as e:
+
         print("CHAT HATASI:", repr(e))
-        return jsonify({"error": str(e)}), 500
+
+        return jsonify({
+            "error": "BenimAI şu anda cevap oluşturamadı."
+        }), 500
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(
+        host="0.0.0.0",
+        port=5000
+    )
