@@ -20,16 +20,15 @@ def ai_cevap(mesaj):
             {
                 "parts": [
                     {
-                        "text": f"""Sen BenimAI adlı hızlı ve doğal konuşan bir yapay zekâ asistanısın.
+                        "text": f"""Sen BenimAI adlı yapay zekâ asistanısın.
 
 Kurallar:
 - Her zaman Türkçe konuş.
-- Doğal ve düzgün cümleler kur.
+- Doğal ve anlaşılır cevaplar ver.
 - Kullanıcının sorusuna doğrudan cevap ver.
 - Gereksiz yere uzun cevaplar verme.
-- Kendini Google Gemini veya başka bir şirketin asistanı olarak tanıtma.
+- Kendini Google Gemini olarak tanıtma.
 - Kendini BenimAI olarak tanıt.
-- Emin olmadığın bilgileri kesinmiş gibi söyleme.
 
 Kullanıcı: {mesaj}
 
@@ -50,6 +49,9 @@ BenimAI:"""
         json=data,
         timeout=120
     )
+
+    print("GEMINI STATUS:", response.status_code)
+    print("GEMINI RESPONSE:", response.text)
 
     response.raise_for_status()
 
@@ -74,8 +76,10 @@ def chat():
     try:
         cevap = ai_cevap(mesaj)
         return jsonify({"response": cevap})
+
     except Exception as e:
-        return jsonify({"error": str(e)})
+        print("CHAT HATASI:", repr(e))
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":
