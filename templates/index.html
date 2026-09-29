@@ -20,8 +20,10 @@
             --border: rgba(255,255,255,.08);
             --text: #f5f7ff;
             --muted: #8b93a7;
-            --purple: #8b5cf6;
-            --cyan: #06b6d4;
+
+            --primary: #8b5cf6;
+            --secondary: #06b6d4;
+            --glow: rgba(139,92,246,.25);
         }
 
         body {
@@ -36,7 +38,7 @@
             height: 100vh;
             display: flex;
             background:
-                radial-gradient(circle at 70% 10%, rgba(124,58,237,.13), transparent 30%),
+                radial-gradient(circle at 70% 10%, var(--glow), transparent 30%),
                 radial-gradient(circle at 90% 90%, rgba(6,182,212,.10), transparent 30%);
         }
 
@@ -67,21 +69,21 @@
             align-items: center;
             justify-content: center;
             font-size: 22px;
-            background: linear-gradient(135deg, var(--purple), var(--cyan));
-            box-shadow: 0 0 25px rgba(139,92,246,.25);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 0 25px var(--glow);
         }
 
         .brand-name {
             font-size: 21px;
             font-weight: 800;
-            background: linear-gradient(90deg, #b794ff, #45e6ff);
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .new-chat {
             border: 1px solid rgba(255,255,255,.1);
-            background: linear-gradient(135deg, #7c3aed, #0891b2);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
             padding: 13px;
             border-radius: 12px;
@@ -120,6 +122,25 @@
 
         .sidebar-bottom {
             margin-top: auto;
+        }
+
+        .settings-button {
+            width: 100%;
+            border: 1px solid var(--border);
+            background: rgba(255,255,255,.04);
+            color: var(--muted);
+            padding: 12px;
+            border-radius: 11px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 13px;
+            margin-bottom: 10px;
+            transition: .2s;
+        }
+
+        .settings-button:hover {
+            background: rgba(255,255,255,.08);
+            color: white;
         }
 
         .model-card {
@@ -203,15 +224,15 @@
             justify-content: center;
             font-size: 38px;
             margin-bottom: 20px;
-            background: linear-gradient(135deg, var(--purple), var(--cyan));
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             box-shadow:
-                0 0 45px rgba(139,92,246,.25),
+                0 0 45px var(--glow),
                 inset 0 0 20px rgba(255,255,255,.15);
         }
 
         .welcome h1 {
             font-size: 38px;
-            background: linear-gradient(90deg, #b794ff, #43e8ff);
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -242,7 +263,7 @@
         }
 
         .ai-avatar {
-            background: linear-gradient(135deg, var(--purple), var(--cyan));
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
         }
 
         .user-avatar {
@@ -268,7 +289,7 @@
         }
 
         .user-message {
-            background: rgba(124,58,237,.13);
+            background: var(--glow);
             border: 1px solid rgba(139,92,246,.15);
             padding: 12px 15px;
             border-radius: 13px;
@@ -316,7 +337,7 @@
             color: white;
             font-size: 18px;
             cursor: pointer;
-            background: linear-gradient(135deg, var(--purple), var(--cyan));
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             transition: .2s;
         }
 
@@ -331,9 +352,147 @@
             font-size: 10px;
         }
 
+        /* AYARLAR */
+
+        .settings-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.55);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .settings-overlay.active {
+            display: flex;
+        }
+
+        .settings-panel {
+            width: 380px;
+            max-width: calc(100% - 30px);
+            background: #101525;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 25px 80px rgba(0,0,0,.5);
+            animation: settingsOpen .2s ease;
+        }
+
+        @keyframes settingsOpen {
+            from {
+                opacity: 0;
+                transform: scale(.95) translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .settings-header h2 {
+            font-size: 19px;
+        }
+
+        .close-settings {
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 9px;
+            background: rgba(255,255,255,.06);
+            color: #aaa;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .close-settings:hover {
+            background: rgba(255,255,255,.1);
+            color: white;
+        }
+
+        .settings-section {
+            margin-bottom: 25px;
+        }
+
+        .settings-label {
+            color: #8b93a7;
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+
+        .color-options {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .color-option {
+            height: 52px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: .2s;
+            position: relative;
+        }
+
+        .color-option:hover {
+            transform: translateY(-2px);
+        }
+
+        .color-option.selected {
+            border-color: white;
+            box-shadow: 0 0 18px rgba(255,255,255,.2);
+        }
+
+        .color-option::after {
+            content: "✓";
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            opacity: 0;
+        }
+
+        .color-option.selected::after {
+            opacity: 1;
+        }
+
+        .purple {
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+        }
+
+        .blue {
+            background: linear-gradient(135deg, #2563eb, #06b6d4);
+        }
+
+        .green {
+            background: linear-gradient(135deg, #16a34a, #14b8a6);
+        }
+
+        .red {
+            background: linear-gradient(135deg, #dc2626, #f97316);
+        }
+
+        .orange {
+            background: linear-gradient(135deg, #ea580c, #eab308);
+        }
+
         /* MOBİL */
 
         @media(max-width: 700px) {
+
             .sidebar {
                 display: none;
             }
@@ -386,6 +545,10 @@
 
         <div class="sidebar-bottom">
 
+            <button class="settings-button" onclick="openSettings()">
+                ⚙️ Ayarlar
+            </button>
+
             <div class="model-card">
 
                 <div class="model-title">
@@ -393,11 +556,11 @@
                 </div>
 
                 <div class="model-name">
-                    Qwen 2.5 · 3B
+                    Gemini 2.5 Flash
                 </div>
 
                 <div class="online">
-                    ● Yerel olarak çalışıyor
+                    ● Çevrimiçi
                 </div>
 
             </div>
@@ -455,12 +618,86 @@
             </div>
 
             <div class="input-info">
-                BenimAI · Yerel yapay zekâ
+                BenimAI · Yapay zekâ asistanı
             </div>
 
         </div>
 
     </main>
+
+</div>
+
+
+<!-- AYARLAR PENCERESİ -->
+
+<div class="settings-overlay" id="settingsOverlay">
+
+    <div class="settings-panel">
+
+        <div class="settings-header">
+
+            <h2>⚙️ Ayarlar</h2>
+
+            <button class="close-settings" onclick="closeSettings()">
+                ✕
+            </button>
+
+        </div>
+
+
+        <div class="settings-section">
+
+            <div class="settings-label">
+                TEMA RENGİ
+            </div>
+
+            <div class="color-options">
+
+                <button
+                    class="color-option purple"
+                    data-primary="#8b5cf6"
+                    data-secondary="#06b6d4"
+                    data-glow="rgba(139,92,246,.25)"
+                    onclick="changeColor(this)">
+                </button>
+
+                <button
+                    class="color-option blue"
+                    data-primary="#2563eb"
+                    data-secondary="#06b6d4"
+                    data-glow="rgba(37,99,235,.25)"
+                    onclick="changeColor(this)">
+                </button>
+
+                <button
+                    class="color-option green"
+                    data-primary="#16a34a"
+                    data-secondary="#14b8a6"
+                    data-glow="rgba(22,163,74,.25)"
+                    onclick="changeColor(this)">
+                </button>
+
+                <button
+                    class="color-option red"
+                    data-primary="#dc2626"
+                    data-secondary="#f97316"
+                    data-glow="rgba(220,38,38,.25)"
+                    onclick="changeColor(this)">
+                </button>
+
+                <button
+                    class="color-option orange"
+                    data-primary="#ea580c"
+                    data-secondary="#eab308"
+                    data-glow="rgba(234,88,12,.25)"
+                    onclick="changeColor(this)">
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -472,23 +709,30 @@ const sendButton = document.getElementById("sendButton");
 const messages = document.getElementById("messages");
 
 
+// MESAJ EKLEME
+
 function addMessage(text, type) {
 
     const row = document.createElement("div");
     row.className = "message-row";
 
     const avatar = document.createElement("div");
-    avatar.className = "avatar " +
+
+    avatar.className =
+        "avatar " +
         (type === "ai" ? "ai-avatar" : "user-avatar");
 
-    avatar.textContent = type === "ai" ? "✦" : "S";
+    avatar.textContent =
+        type === "ai" ? "✦" : "S";
 
     const content = document.createElement("div");
     content.className = "message-content";
 
     const name = document.createElement("div");
     name.className = "message-name";
-    name.textContent = type === "ai" ? "BenimAI" : "Sen";
+
+    name.textContent =
+        type === "ai" ? "BenimAI" : "Sen";
 
     const message = document.createElement("div");
     message.className = "message";
@@ -513,13 +757,16 @@ function addMessage(text, type) {
 }
 
 
+// MESAJ GÖNDER
+
 async function sendMessage() {
 
     const text = input.value.trim();
 
     if (!text) return;
 
-    const welcome = document.getElementById("welcome");
+    const welcome =
+        document.getElementById("welcome");
 
     if (welcome) {
         welcome.remove();
@@ -529,20 +776,25 @@ async function sendMessage() {
 
     input.value = "";
 
-    const loading = addMessage("BenimAI düşünüyor...", "ai");
+    const loading =
+        addMessage("BenimAI düşünüyor...", "ai");
 
     sendButton.disabled = true;
 
     try {
 
         const response = await fetch("/chat", {
+
             method: "POST",
+
             headers: {
                 "Content-Type": "application/json"
             },
+
             body: JSON.stringify({
                 message: text
             })
+
         });
 
         const data = await response.json();
@@ -550,9 +802,19 @@ async function sendMessage() {
         loading.remove();
 
         if (data.response) {
-            addMessage(data.response, "ai");
+
+            addMessage(
+                data.response,
+                "ai"
+            );
+
         } else {
-            addMessage("Hata: " + data.error, "ai");
+
+            addMessage(
+                "Hata: " + data.error,
+                "ai"
+            );
+
         }
 
     } catch (error) {
@@ -560,24 +822,35 @@ async function sendMessage() {
         loading.remove();
 
         addMessage(
-            "Sunucuya bağlanamadım. Flask ve Ollama'nın açık olduğundan emin ol.",
+            "Sunucuya bağlanamadım.",
             "ai"
         );
 
     }
 
     sendButton.disabled = false;
+
     input.focus();
 }
 
+
+// YENİ SOHBET
 
 function newChat() {
 
     messages.innerHTML = `
         <div class="welcome" id="welcome">
-            <div class="welcome-icon">✦</div>
+
+            <div class="welcome-icon">
+                ✦
+            </div>
+
             <h1>BenimAI</h1>
-            <p>Bugün sana nasıl yardımcı olabilirim?</p>
+
+            <p>
+                Bugün sana nasıl yardımcı olabilirim?
+            </p>
+
         </div>
     `;
 
@@ -585,16 +858,182 @@ function newChat() {
 }
 
 
-sendButton.addEventListener("click", sendMessage);
+// AYARLAR AÇ
+
+function openSettings() {
+
+    document
+        .getElementById("settingsOverlay")
+        .classList.add("active");
+
+}
 
 
-input.addEventListener("keydown", function(event) {
+// AYARLAR KAPAT
 
-    if (event.key === "Enter") {
-        sendMessage();
+function closeSettings() {
+
+    document
+        .getElementById("settingsOverlay")
+        .classList.remove("active");
+
+}
+
+
+// RENK DEĞİŞTİR
+
+function changeColor(button) {
+
+    const primary =
+        button.dataset.primary;
+
+    const secondary =
+        button.dataset.secondary;
+
+    const glow =
+        button.dataset.glow;
+
+    document.documentElement.style.setProperty(
+        "--primary",
+        primary
+    );
+
+    document.documentElement.style.setProperty(
+        "--secondary",
+        secondary
+    );
+
+    document.documentElement.style.setProperty(
+        "--glow",
+        glow
+    );
+
+
+    document
+        .querySelectorAll(".color-option")
+        .forEach(option => {
+
+            option.classList.remove("selected");
+
+        });
+
+
+    button.classList.add("selected");
+
+
+    localStorage.setItem(
+        "benimaiPrimary",
+        primary
+    );
+
+    localStorage.setItem(
+        "benimaiSecondary",
+        secondary
+    );
+
+    localStorage.setItem(
+        "benimaiGlow",
+        glow
+    );
+
+}
+
+
+// KAYITLI RENGİ YÜKLE
+
+function loadColor() {
+
+    const primary =
+        localStorage.getItem("benimaiPrimary");
+
+    const secondary =
+        localStorage.getItem("benimaiSecondary");
+
+    const glow =
+        localStorage.getItem("benimaiGlow");
+
+
+    if (!primary || !secondary || !glow) {
+
+        document
+            .querySelector(".color-option.purple")
+            .classList.add("selected");
+
+        return;
     }
 
-});
+
+    document.documentElement.style.setProperty(
+        "--primary",
+        primary
+    );
+
+    document.documentElement.style.setProperty(
+        "--secondary",
+        secondary
+    );
+
+    document.documentElement.style.setProperty(
+        "--glow",
+        glow
+    );
+
+
+    document
+        .querySelectorAll(".color-option")
+        .forEach(option => {
+
+            if (
+                option.dataset.primary === primary
+            ) {
+
+                option.classList.add("selected");
+
+            }
+
+        });
+
+}
+
+
+// DIŞARI TIKLAYINCA KAPAT
+
+document
+    .getElementById("settingsOverlay")
+    .addEventListener("click", function(event) {
+
+        if (event.target === this) {
+            closeSettings();
+        }
+
+    });
+
+
+// ENTER
+
+input.addEventListener(
+    "keydown",
+    function(event) {
+
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+
+    }
+);
+
+
+// GÖNDER
+
+sendButton.addEventListener(
+    "click",
+    sendMessage
+);
+
+
+// BAŞLANGIÇ
+
+loadColor();
 
 </script>
 
